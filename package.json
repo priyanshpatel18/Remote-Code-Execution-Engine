@@ -7,7 +7,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "concurrently \"tsc -w\" \"nodemon -q dist/index.js\"",
-    "prepare": "husky"
+    "prepare": "husky",
+    "vercel:build": "npm run build"
   },
   "dependencies": {
     "@prisma/client": "5.18.0",
