@@ -1,7 +1,7 @@
+import cors from "cors";
 import Docker from 'dockerode';
 import express, { Request, Response } from 'express';
 import tar from 'tar-stream';
-import cors from "cors";
 
 const app = express();
 const docker = new Docker();
@@ -27,20 +27,17 @@ app.post('/run', async (req: Request, res: Response) => {
   }
 
   try {
-    const result = await executeCode(language, code);
-    res.json({ result });
+    const { result, success } = await executeCode(language, code);
+    res.json({ result, success });
   } catch (error) {
     console.log(error);
     let errorMessage = 'Error executing code.';
 
     if (error instanceof Error) {
-      if (error.message === 'Execution timed out') {
-        errorMessage = 'Execution timed out';
-      }
-      res.status(500).json({ result: errorMessage });
-    } else {
-      res.status(500).json({ result: errorMessage, error: 'An unknown error occurred' });
+      errorMessage = `Error executing code: ${error.message}\nStack trace: ${error.stack}`;
     }
+
+    res.status(500).json({ result: errorMessage });
   }
 });
 
@@ -80,10 +77,13 @@ function getExecutionCommand(language: string, fileName: string): string[] {
   return commands[language];
 }
 
-async function executeCode(language: string, code: string): Promise<string> {
+async function executeCode(language: string, code: string): Promise<{ result: string, success: boolean }> {
   const image = getDockerImage(language);
   if (!image) {
-    throw new Error('Unsupported language.');
+    return {
+      result: 'Invalid language',
+      success: false,
+    };
   }
 
   const fileName = getFileName(language);
@@ -100,7 +100,7 @@ async function executeCode(language: string, code: string): Promise<string> {
     HostConfig: {
       AutoRemove: true,
       NetworkMode: 'none',
-      Memory: 64 * 1024 * 1024, // 64MB
+      Memory: 32 * 1024 * 1024, // 32MB
       CpuShares: 512,
     },
     WorkingDir: '/usr/src/app',
@@ -109,7 +109,7 @@ async function executeCode(language: string, code: string): Promise<string> {
   const tarStream = createTarStream(fileName, code);
   await container.putArchive(tarStream, { path: '/usr/src/app' });
 
-  const timeout = 10000; // Set a timeout limit (e.g., 10 seconds)
+  const timeout = 10000;
   let timeoutHandle: NodeJS.Timeout | null = null;
 
   const dataPromise = startContainerAndGetOutput(container);
@@ -122,7 +122,14 @@ async function executeCode(language: string, code: string): Promise<string> {
   try {
     // Race between the container output promise and the timeout promise
     const output = await Promise.race([dataPromise, timeoutPromise]);
-    return output
+    return {
+      result: output,
+      success: true,
+    }
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Execution timed out') {
+      return { result: 'Execution timed out', success: false };
+    } throw error;
   } finally {
     if (timeoutHandle) {
       clearTimeout(timeoutHandle);
