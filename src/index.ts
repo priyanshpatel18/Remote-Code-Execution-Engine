@@ -47,8 +47,8 @@ app.post('/run', async (req: Request, res: Response) => {
 function getDockerImage(language: string): string | null {
   const images: { [key: string]: string } = {
     python: 'python:alpine',
-    js: 'node:alpine',
-    ts: 'node:alpine',
+    js: 'node:22-alpine',
+    ts: 'priyanshptl18/ts-custom:latest',
     c: 'gcc:13.3',
     cpp: 'gcc:13.3',
     java: 'openjdk:19-alpine',
