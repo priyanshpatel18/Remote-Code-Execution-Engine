@@ -43,12 +43,12 @@ app.post('/run', async (req: Request, res: Response) => {
 
 function getDockerImage(language: string): string | null {
   const images: { [key: string]: string } = {
-    python: 'python:alpine',
-    js: 'node:22-alpine',
+    python: 'priyanshptl18/python-custom:latest',
+    js: 'priyanshptl18/js-custom:latest',
     ts: 'priyanshptl18/ts-custom:latest',
-    c: 'gcc:13.3',
-    cpp: 'gcc:13.3',
-    java: 'openjdk:19-alpine',
+    c: 'priyanshptl18/clang-custom:latest',
+    cpp: 'priyanshptl18/cpp-custom:latest',
+    java: 'priyanshptl18/java-custom:latest',
   };
   return images[language] || null;
 }
@@ -69,7 +69,7 @@ function getExecutionCommand(language: string, fileName: string): string[] {
   const commands: { [key: string]: string[] } = {
     python: ['python3', fileName],
     js: ['node', fileName],
-    ts: ['ts-node', fileName],
+    ts: ['sh', '-c', `sleep 600 &&tsc ${fileName} && node ${fileName.replace('.ts', '.js')}`,],
     c: ['sh', '-c', `gcc ${fileName} -o script && ./script`],
     cpp: ['sh', '-c', `g++ ${fileName} -o script && ./script`],
     java: ['sh', '-c', `javac ${fileName} && java Main`],
@@ -94,22 +94,24 @@ async function executeCode(language: string, code: string): Promise<{ result: st
   const container = await docker.createContainer({
     Image: image,
     Cmd: cmd,
-    Tty: false,
-    AttachStdout: true,
-    AttachStderr: true,
+    Tty: false, // Do not allocate a TTY
+    AttachStdout: true, // Attach stdout to the container
+    AttachStderr: true, // Attach stderr to the container
     HostConfig: {
-      AutoRemove: true,
-      NetworkMode: 'none',
-      Memory: 32 * 1024 * 1024, // 32MB
-      CpuShares: 512,
+      AutoRemove: true, // Remove the container when it exits
+      NetworkMode: 'none', // No Network Access
+      Memory: 64 * 1024 * 1024, // 64MB
+      CpuShares: 512, // Limit to 512 CPU shares
+      SecurityOpt: ['seccomp:unconfined', 'apparmor:unconfined', 'no-new-privileges'], // Isolation of Container
     },
     WorkingDir: '/usr/src/app',
+    User: 'codeuser',
   });
 
   const tarStream = createTarStream(fileName, code);
   await container.putArchive(tarStream, { path: '/usr/src/app' });
 
-  const timeout = 10000;
+  const timeout = 100000;
   let timeoutHandle: NodeJS.Timeout | null = null;
 
   const dataPromise = startContainerAndGetOutput(container);
@@ -140,7 +142,8 @@ async function executeCode(language: string, code: string): Promise<{ result: st
 
 function createTarStream(fileName: string, code: string): NodeJS.ReadableStream {
   const pack = tar.pack();
-  pack.entry({ name: fileName }, code);
+  pack.entry({ name: fileName, mode: 0o755 }, code);
+  // Ensure executable permissions by mode = 0o755
   pack.finalize();
   return pack;
 }
@@ -151,6 +154,7 @@ async function startContainerAndGetOutput(container: Docker.Container): Promise<
 
   return new Promise((resolve, reject) => {
     let output = '';
+    let errorOutput = '';
     // This line splits the combined stdout and stderr streams coming from the Docker container
     // and pipes them to the local terminal's process.stdout and process.stderr, allowing
     // the container's output to be displayed in real-time in the terminal.
@@ -164,7 +168,17 @@ async function startContainerAndGetOutput(container: Docker.Container): Promise<
     });
 
     // Resolve the promise when the container exits
-    stream.on('end', () => resolve(output));
+    stream.on('error', (chunk) => {
+      errorOutput += chunk.toString();
+    });
+    stream.on('end', () => {
+      if (errorOutput) {
+        reject(new Error(errorOutput));
+      } else {
+        resolve(output);
+      }
+    });
+
     stream.on('error', (err) => reject(err));
 
     // Start the container
