@@ -1,0 +1,19 @@
+FROM node:22-alpine
+
+# Create a non-root user
+RUN addgroup -S codeuser && adduser -S -G codeuser codeuser
+
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Install TypeScript and ts-node globally
+RUN npm install -g typescript ts-node
+
+# Set permissions for the working directory
+RUN chown -R codeuser:codeuser /usr/src/app
+
+# Switch to the non-root user
+USER codeuser
+
+# Set the default command to keep the container running
+CMD ["tail", "-f", "/dev/null"]
