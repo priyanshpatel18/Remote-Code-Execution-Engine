@@ -67,12 +67,12 @@ function getFileName(language: string): string {
 
 function getExecutionCommand(language: string, fileName: string): string[] {
   const commands: { [key: string]: string[] } = {
-    python: ['python3', fileName],
-    js: ['node', fileName],
-    ts: ['sh', '-c', `sleep 600 &&tsc ${fileName} && node ${fileName.replace('.ts', '.js')}`,],
+    python: ['sh', '-c', `python3 ${fileName}`],
+    js: ['sh', '-c', `node ${fileName}`],
+    ts: ['sh', '-c', `tsc ${fileName} && node ${fileName.replace('.ts', '.js')}`,],
     c: ['sh', '-c', `gcc ${fileName} -o script && ./script`],
     cpp: ['sh', '-c', `g++ ${fileName} -o script && ./script`],
-    java: ['sh', '-c', `javac ${fileName} && java Main`],
+    java: ['sh', '-c', `time  javac ${fileName} && java Main`],
   };
   return commands[language];
 }
@@ -111,7 +111,7 @@ async function executeCode(language: string, code: string): Promise<{ result: st
   const tarStream = createTarStream(fileName, code);
   await container.putArchive(tarStream, { path: '/usr/src/app' });
 
-  const timeout = 100000;
+  const timeout = 10000;
   let timeoutHandle: NodeJS.Timeout | null = null;
 
   const dataPromise = startContainerAndGetOutput(container);
