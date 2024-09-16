@@ -72,7 +72,7 @@ function getExecutionCommand(language: string, fileName: string): string[] {
     ts: ['sh', '-c', `tsc ${fileName} && node ${fileName.replace('.ts', '.js')}`,],
     c: ['sh', '-c', `gcc ${fileName} -o script && ./script`],
     cpp: ['sh', '-c', `g++ ${fileName} -o script && ./script`],
-    java: ['sh', '-c', `time  javac ${fileName} && java Main`],
+    java: ['sh', '-c', `javac ${fileName} && java Main`],
   };
   return commands[language];
 }
