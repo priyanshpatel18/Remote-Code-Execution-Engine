@@ -4,14 +4,13 @@
   "main": "index.js",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "postinstall": "primsa generate",
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "concurrently \"tsc -w\" \"nodemon -q dist/index.js\"",
-    "prepare": "husky",
     "vercel:build": "npm run build"
   },
   "dependencies": {
+    "@kubernetes/client-node": "^0.22.0",
     "@prisma/client": "5.18.0",
     "@types/uuid": "^10.0.0",
     "cors": "^2.8.5",

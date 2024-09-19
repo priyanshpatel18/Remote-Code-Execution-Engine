@@ -18,6 +18,7 @@ RUN apt-get update \
   && apt-get install -y nodejs \
   # Install pnpm for Node.js/TypeScript project management
   && npm install -g pnpm \
+  && npm install -g typescript \
   # Clean up
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*

@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: code-execution
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: code-execution
@@ -15,6 +15,7 @@ spec:
       containers:
       - name: code-execution
         image: priyanshptl18/code-exec-base:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
         env:
