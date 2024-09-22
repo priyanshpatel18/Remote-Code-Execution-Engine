@@ -18,6 +18,7 @@ RUN apt-get update \
   && apt-get install -y nodejs \
   # Install pnpm for Node.js/TypeScript project management
   && npm install -g pnpm \
+  && npm install -g typescript \
   # Clean up
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
@@ -37,6 +38,8 @@ COPY . .
 
 # Expose the application port
 EXPOSE 8080
+
+RUN pnpm run build
 
 # Create a non-root user for better security
 RUN useradd -ms /bin/bash codeuser
