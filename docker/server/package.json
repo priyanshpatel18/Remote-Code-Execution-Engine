@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "start": "node index.js",
+    "start": "node dist/index.js",
     "build": "tsc",
     "dev": "concurrently \"tsc -w\" \"nodemon -q dist/index.js\""
   },
@@ -18,6 +18,8 @@
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.5",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
     "@types/tmp": "^0.2.6",
     "concurrently": "^9.0.1",
     "nodemon": "^3.1.4"

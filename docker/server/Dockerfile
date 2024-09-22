@@ -39,6 +39,8 @@ COPY . .
 # Expose the application port
 EXPOSE 8080
 
+RUN pnpm run build
+
 # Create a non-root user for better security
 RUN useradd -ms /bin/bash codeuser
 USER codeuser
