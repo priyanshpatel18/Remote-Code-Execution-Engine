@@ -4,9 +4,11 @@ import express, { Request, Response } from 'express';
 import fs from 'fs';
 import * as ptyProcess from 'node-pty';
 import path from 'path';
+import tmp from 'tmp';
 
 const app = express();
 
+// Middleware
 app.use(express.json());
 app.use(
   cors({
@@ -17,11 +19,13 @@ app.use(
   }),
 );
 
+// Request body
 interface RunCodeRequest {
   language: string;
   code: string;
 }
 
+// Helpers
 function getFileName(language: string) {
   switch (language) {
     case 'python':
@@ -42,17 +46,21 @@ function getFileName(language: string) {
 }
 
 function getExecutionCommand(language: string, filePath: string) {
+  const outputFilePath = path.join(
+    path.dirname(filePath),
+    path.basename(filePath, path.extname(filePath)),
+  );
   switch (language) {
     case 'python':
       return `python3 ${filePath}`;
     case 'javascript':
       return `node ${filePath}`;
     case 'typescript':
-      return `ts-node ${filePath}`;
+      return `tsc ${filePath} && node ${filePath.replace('.ts', '.js')}`;
     case 'c':
-      return `gcc ${filePath} && ./a.out`;
+      return `gcc ${filePath} -o ${outputFilePath} && ${outputFilePath}`;
     case 'cpp':
-      return `g++ ${filePath} && ./a.out`;
+      return `g++ ${filePath} -o ${outputFilePath} && ${outputFilePath}`;
     case 'java':
       return `java ${filePath}`;
     default:
@@ -61,22 +69,19 @@ function getExecutionCommand(language: string, filePath: string) {
 }
 
 function createPtyProcess(command: string) {
-  try {
-    const shell = process.env.SHELL || 'bash';
-    return ptyProcess.spawn(shell, ['-c', command], {
-      name: 'xterm-color',
-      cols: 200,
-      rows: 30,
-      cwd: process.env.HOME,
-      env: process.env,
-    });
-  } catch (error) {
-    console.error('Failed to create PTY process:', error);
-    return null;
-  }
+  const shell = process.env.SHELL || 'bash';
+  return ptyProcess.spawn(shell, ['-c', command], {
+    name: 'xterm-color',
+    cols: 80,
+    rows: 30,
+    cwd: process.cwd(),
+    env: process.env,
+  });
 }
 
+// Routes
 app.post('/execute', async (req: Request, res: Response) => {
+  // Validate request
   const { language, code } = req.body as RunCodeRequest;
   if (!language || !code) {
     return res
@@ -84,37 +89,38 @@ app.post('/execute', async (req: Request, res: Response) => {
       .json({ result: 'Language and code are required.', success: false });
   }
 
-  const fileName = getFileName(language);
-  const dirPath = path.join(__dirname, 'scripts');
-  const filePath = path.join(__dirname, 'scripts', fileName);
-  const command = getExecutionCommand(language, filePath);
-
-  if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath, { recursive: true });
+  // Ensure scripts directory exists
+  const scriptsDir = path.join(__dirname, 'scripts');
+  if (!fs.existsSync(scriptsDir)) {
+    fs.mkdirSync(scriptsDir, { recursive: true });
   }
+
+  // Create temporary file
+  const tempFile = tmp.fileSync({ postfix: getFileName(language) });
+  const filePath = tempFile.name;
+  const command = getExecutionCommand(language, filePath);
 
   try {
     // Write code to file
-    await fs.promises.writeFile(filePath, code);
+    fs.writeFileSync(filePath, code, { encoding: 'utf8' });
 
-    // Create a PTY process
-    const ptyProcess = createPtyProcess(command);
-    if (!ptyProcess) {
+    // Execute code
+    const pty = createPtyProcess(command);
+    if (!pty) {
       return res
         .status(500)
         .json({ result: 'Failed to create PTY process.', success: false });
     }
 
+    // Stream output
     let outputBuffer = '';
-    ptyProcess.onData((data) => {
-      console.log(`Received data from PTY process: ${data}`);
+    pty.onData((data) => {
       outputBuffer += data;
     });
 
-    ptyProcess.onExit((exitCode) => {
-      return res
-        .status(200)
-        .json({ result: outputBuffer, exitCode, success: true });
+    // Wait for exit
+    pty.onExit((exitCode) => {
+      res.status(200).json({ result: outputBuffer, exitCode, success: true });
     });
   } catch (error) {
     console.error(error);
@@ -122,17 +128,16 @@ app.post('/execute', async (req: Request, res: Response) => {
       .status(500)
       .json({ result: 'Failed to run code.', success: false });
   } finally {
-    fs.promises
-      .readdir(dirPath)
-      .then((files) => {
-        const deletePromises = files.map((file) => {
-          return fs.promises.unlink(path.join(dirPath, file));
+    // Cleanup on success or error
+    fs.readdir(scriptsDir, (err, files) => {
+      if (err) return console.error('Error reading scripts directory:', err);
+      files.forEach((file) => {
+        const filePath = path.join(scriptsDir, file);
+        fs.unlink(filePath, (unlinkErr) => {
+          if (unlinkErr) console.error('Error deleting file:', unlinkErr);
         });
-        return Promise.all(deletePromises);
-      })
-      .catch((err) => {
-        console.error('Failed to empty scripts directory', err);
       });
+    });
   }
 });
 
