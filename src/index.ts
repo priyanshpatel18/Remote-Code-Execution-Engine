@@ -24,6 +24,7 @@ interface Container {
   busy: boolean;
 }
 
+// These are internal IPs
 const containers: Container[] = [
   { ip: '172.18.0.2', port: 30007, busy: false },
   { ip: '172.18.0.3', port: 30007, busy: false },
