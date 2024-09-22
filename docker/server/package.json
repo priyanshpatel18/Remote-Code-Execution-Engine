@@ -2,19 +2,22 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "start": "node index.js",
-    "dev": "nodemon -q index.js"
+    "build": "tsc",
+    "dev": "concurrently \"tsc -w\" \"nodemon -q dist/index.js\""
   },
   "dependencies": {
+    "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
     "node-pty": "^1.0.0"
   },
   "devDependencies": {
+    "@types/body-parser": "^1.19.5",
+    "concurrently": "^9.0.1",
     "nodemon": "^3.1.4"
   }
 }

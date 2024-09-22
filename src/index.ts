@@ -1,15 +1,17 @@
-import cors from "cors";
+import cors from 'cors';
 import express, { Request, Response } from 'express';
 
 const app = express();
 
 app.use(express.json());
-app.use(cors({
-  origin: true,
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type'],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: true,
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type'],
+    credentials: true,
+  }),
+);
 
 interface RunCodeRequest {
   language: string;
@@ -25,7 +27,7 @@ interface Container {
 const containers: Container[] = [
   { ip: '172.18.0.2', port: 30007, busy: false },
   { ip: '172.18.0.3', port: 30007, busy: false },
-  { ip: '172.18.0.4', port: 30007, busy: false }
+  { ip: '172.18.0.4', port: 30007, busy: false },
 ];
 
 function selectAvailableContainer(): Container | undefined {
@@ -39,19 +41,23 @@ function stripAnsiCodes(input: string): string {
 app.post('/run', async (req: Request, res: Response) => {
   const { language, code } = req.body as RunCodeRequest;
   if (!language || !code) {
-    return res.status(400).json({ result: 'Language and code are required.', success: false });
+    return res
+      .status(400)
+      .json({ result: 'Language and code are required.', success: false });
   }
 
   const container = selectAvailableContainer();
   if (!container) {
     // Push the body to the queue
-    return res.status(503).json({ result: 'All containers are busy.', success: false });
+    return res
+      .status(503)
+      .json({ result: 'All containers are busy.', success: false });
   }
 
   try {
     container.busy = true;
     // const response = await fetch(`http://${container.ip}:${container.port}/execute`, {
-    const response = await fetch(`http://localhost:8080/execute`, {
+    const response = await fetch(`http://localhost:5555/execute`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -59,7 +65,7 @@ app.post('/run', async (req: Request, res: Response) => {
       body: JSON.stringify({ code, language }),
     });
     const { result } = await response.json();
-    
+
     if (result) {
       const cleanedOutput = stripAnsiCodes(result);
       res.status(200).json({ result: cleanedOutput, success: true });
