@@ -1,0 +1,8 @@
+
+
+> @repo/database@1.0.0 studio /home/patel/PATEL/v2/packages/database
+> npx prisma studio
+
+[1G[0K[2mEnvironment variables loaded from .env[22m
+[2mPrisma schema loaded from prisma/schema.prisma[22m
+Prisma Studio is up on http://localhost:5555
