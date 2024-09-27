@@ -1,0 +1,13 @@
+
+
+> @repo/database@1.0.0 db:migrate /home/patel/PATEL/v2/packages/database
+> prisma migrate deploy
+
+[2mEnvironment variables loaded from .env[22m
+[2mPrisma schema loaded from prisma/schema.prisma[22m
+[2mDatasource "db": PostgreSQL database "mydb", schema "public" at "localhost:5432"[22m
+
+3 migrations found in prisma/migrations
+
+
+[32mNo pending migrations to apply.[39m
