@@ -1,81 +1,127 @@
-# Turborepo starter
+# System Design for Code Execution Server
 
-This is an official starter Turborepo.
+![System Design for Code Execution Server](system-design.excalidraw.png)
 
-## Using this example
+## Table of Contents
 
-Run the following command:
+- Overview
+- Approach 1: Spin up Docker on the Fly
+- Approach 2: Pre-warmed Docker Containers
+  - Version 2.1: Full-Stack Code Execution Server
+- Deployment Requirements
+- Step-by-Step Guide for Implementation
 
-```sh
-npx create-turbo@latest
+## Overview
+
+This system design proposes three solutions for handling code execution on a backend server. The primary goal is to handle requests from users submitting code in different programming languages, execute the code, and return the output or errors, all while ensuring efficient resource management.
+
+## Approach 1: Spin up Docker on the Fly
+
+### Description
+
+In this approach, a Docker container is created dynamically for each incoming code execution request. This ensures that each request is isolated in its environment.
+
+### Workflow
+
+1. The front-end client sends code to the Node.js server.
+2. The Node.js server creates a Docker container for each request.
+3. The Docker container pulls the appropriate language-specific image, mounts the submitted code, and executes it.
+4. The output (or errors) is returned to the Node.js server and then back to the client.
+
+### How the Code Executes:
+
+**Request Body:**
+
+```json
+{
+  "code": "print('Hello World!')",
+  "language": "python"
+}
 ```
 
-## What's inside?
+- The system pulls a language-specific Docker image based on the `"language"` field and executes the code inside a new container.
+- The container is mounted with the submitted code, compiled if necessary, and executed.
+- The `stdout` and `stderr` are captured and returned to the client.
 
-This Turborepo includes the following packages/apps:
+### Pros:
 
-### Apps and Packages
+- Complete isolation for each code execution.
+- Flexibility in supporting multiple languages.
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+### Cons:
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+- Time and resource overhead in creating a container for every request.
 
-### Utilities
+---
 
-This Turborepo has some additional tools already setup for you:
+## Approach 2: Pre-warmed Docker Containers
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+### Description
 
-### Build
+This approach uses a pool of pre-warmed Docker containers to handle incoming requests more efficiently by eliminating the need to spin up a new container for each request.
 
-To build all apps and packages, run the following command:
+### Workflow
 
-```
-cd my-turborepo
-pnpm build
-```
+1. A proxy manages a pool of 45 pre-warmed containers, each capable of compiling and executing code.
+2. When a code execution request arrives, the proxy routes the request to one of the pre-warmed containers.
+3. The chosen container compiles and executes the submitted code and returns the output or errors to the client.
 
-### Develop
+### How the Code Executes:
 
-To develop all apps and packages, run the following command:
+**Request Body:**
 
-```
-cd my-turborepo
-pnpm dev
+```json
+{
+  "code": "<submitted_code>",
+  "language": "<code_language>"
+}
 ```
 
-### Remote Caching
+- The proxy selects an available container from the pool.
+- The container runs the code and returns the result to the client.
+- The result may include `stdout`, `stderr`, or any compilation errors.
 
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+### Pros:
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup), then enter the following commands:
+- Faster execution compared to spinning up containers on demand.
+- Efficient use of resources with pre-warmed containers.
 
+### Cons:
+
+- Pre-warmed containers can still become a bottleneck if all are in use.
+
+---
+
+## Version 2.1: Full-Stack Code Execution Server
+
+### Description
+
+This version is designed to handle full-stack scenarios, including integrating WebSockets to support real-time updates for code execution results and a queue system for processing requests.
+
+### Workflow
+
+1. The client sends code, language, and user information to the primary backend server.
+2. The backend server communicates with WebSocket services (WS) and a queue system (W1, W2) to handle code execution requests.
+3. The result of the execution (`stdout`, `stderr`, etc.) is returned to the user in real time via WebSockets.
+
+### How the Code Executes:
+
+**Request Body:**
+
+```json
+{
+  "code": "<submitted_code>",
+  "language": "<code_language>",
+  "userId": "<user_id>"
+}
 ```
-cd my-turborepo
-npx turbo login
-```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+- The code is placed in a queue, where multiple worker nodes (W1, W2) can process the request in parallel.
+- The WebSocket service provides real-time feedback on the execution status and final result.
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+### Pros:
+- Scalable to support multiple requests simultaneously.
+- Real-time feedback via WebSockets enhances user experience.
 
-```
-npx turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
+### Cons:
+- Requires more infrastructure, such as queue management and WebSocket services.
