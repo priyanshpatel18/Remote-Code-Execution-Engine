@@ -18,7 +18,7 @@ async function processSubmission(data: QueuePayload, ws: WebSocket) {
     // Update submission status
     let submission = await db.submission.update({
       where: { id: submissionId },
-      data: { status: "RUNNING" },
+      data: { status: "UNDER_EXECUTION" },
     });
     if (!submission) {
       sendMessage("Submission was not saved", userId, ws);
@@ -29,18 +29,19 @@ async function processSubmission(data: QueuePayload, ws: WebSocket) {
     sendMessage("Executing Code", userId, ws);
 
     // Execute code
-    const response = await executeCode(code, language);
+    const response = await executeCode(code, language.toLowerCase());
     if (!response.ok) {
       sendMessage("Failed to Execute Code", userId, ws);
       return;
     }
-
+    
     const data = await response.json();
+    
     // Update submission status & result
     submission = await db.submission.update({
       where: { id: submissionId },
       data: {
-        status: "SUCCESS",
+        status: "COMPLETED",
         result: data.result,
       },
     });
@@ -48,7 +49,7 @@ async function processSubmission(data: QueuePayload, ws: WebSocket) {
       sendMessage("Failed to Save Result", userId, ws);
       return;
     }
-
+    
     // Send result
     sendMessage(data.result, userId, ws);
   } catch (error) {
@@ -58,16 +59,12 @@ async function processSubmission(data: QueuePayload, ws: WebSocket) {
 }
 
 function sendMessage(result: any, userId: string, ws: WebSocket) {
-  if (ws.readyState === WebSocket.OPEN) {
-    ws.send(
-      JSON.stringify({
-        type: UPDATE_USER,
-        payload: { userId, result },
-      })
-    );
-  } else {
-    console.error(`WebSocket is not open for user ${userId}`);
-  }
+  ws.send(
+    JSON.stringify({
+      type: UPDATE_USER,
+      payload: { userId, result },
+    })
+  );
 }
 
 async function executeCode(code: string, language: string) {
@@ -88,6 +85,7 @@ async function executeCode(code: string, language: string) {
 
 async function startWorker() {
   const queue = process.env.REDIS_QUEUE || "redis-queue";
+  
   const ws = connectWebSocket();
   console.log("STARTING WORKER");
 

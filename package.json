@@ -1,5 +1,5 @@
 {
-  "name": "Remote-Code-Execution-Engine",
+  "name": "v2.1",
   "private": true,
   "scripts": {
     "build": "turbo build",

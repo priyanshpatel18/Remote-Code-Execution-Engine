@@ -61,8 +61,11 @@ class SocketManager {
     });
   }
 
-  sendMessage(payload: any, ws: WebSocket) {
-    ws.send(JSON.stringify({ type: UPDATE_USER, payload }));
+  sendMessage(payload: any, userId: string) {
+    const user = this.users.find((u) => u.userId === userId);
+    if (user) {
+      user.socket.send(JSON.stringify({ type: UPDATE_USER, payload }));
+    }
   }
 
   // Worker
@@ -72,6 +75,7 @@ class SocketManager {
   addWorker(ws: WebSocket) {
     const worker = new Worker(ws);
     this.workers.push(worker);
+    this.workerHandler(worker);
     return worker;
   }
   removeWorker(worker: Worker) {
@@ -82,7 +86,7 @@ class SocketManager {
       const message = JSON.parse(data.toString());
 
       if (message.type === UPDATE_USER) {
-        console.log(message.payload);
+        this.sendMessage(message.payload.result, message.payload.userId);
       }
     });
   }

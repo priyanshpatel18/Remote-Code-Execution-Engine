@@ -27,7 +27,7 @@ wss.on("connection", (ws: WebSocket, req: Request) => {
 
   const user = extractAuthUser(token, ws);
   socketManager.addUser(user);
-  ws.send(JSON.stringify({ type: CONNECTED, user: user.userId }));
+  ws.send(JSON.stringify({ type: CONNECTED, payload: user.userId }));
 
   // Heartbeat Algorithm
   ws.on("message", (data: string) => {
