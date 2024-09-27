@@ -49,7 +49,7 @@ app.post('/run', async (req: Request, res: Response) => {
 
   const container = selectAvailableContainer();
   console.log(container);
-
+  
   if (!container) {
     // Push the body to the queue
     return res
@@ -69,18 +69,14 @@ app.post('/run', async (req: Request, res: Response) => {
         body: JSON.stringify({ code, language }),
       },
     );
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      return res.status(response.status).json({
-        result: errorResponse.message || 'Failed to run code.',
-        success: false,
-      });
-    }
-
     const { result } = await response.json();
-    
-    const cleanedOutput = stripAnsiCodes(result);
-    res.status(200).json({ result: cleanedOutput, success: true });
+
+    if (result) {
+      const cleanedOutput = stripAnsiCodes(result);
+      res.status(200).json({ result: cleanedOutput, success: true });
+    } else {
+      res.status(500).json({ result: 'Failed to run code.', success: false });
+    }
   } catch (error) {
     console.log(error);
     res.status(500).json({ result: 'Internal Server Error', success: false });
