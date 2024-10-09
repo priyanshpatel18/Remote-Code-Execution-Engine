@@ -8,8 +8,8 @@ import {
   DialogOverlay,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { User } from "@/hooks/useUser";
 import { Provider } from "@repo/database";
-import { UserDetails } from "@repo/types";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 import { Dispatch, FormEvent, SetStateAction, useRef, useState } from "react";
@@ -23,13 +23,15 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 export interface SignInDialogProps {
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
-  setUser: Dispatch<SetStateAction<UserDetails | null>>;
+  setUser: Dispatch<SetStateAction<User | null>>;
+  setIsSignedIn: Dispatch<SetStateAction<boolean>>;
 }
 
 export default function SignInDialog({
   isOpen,
   setIsOpen,
   setUser,
+  setIsSignedIn,
 }: SignInDialogProps) {
   const guestName = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -68,7 +70,13 @@ export default function SignInDialog({
       });
 
       const { user } = await response.json();
-      setUser(user);
+      if (user) {
+        setUser(user);
+        setIsSignedIn(true);
+      } else {
+        setUser(null);
+        setIsSignedIn(false);
+      }
     } catch (error) {
       console.error("Failed to login as guest:", error);
     } finally {

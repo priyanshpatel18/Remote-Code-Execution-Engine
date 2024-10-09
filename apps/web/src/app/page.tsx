@@ -13,40 +13,40 @@ export interface Language {
   label: string;
 }
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-
 export default function Home() {
   const [selectedLanguage, setSelectedLanguage] = useState<Language>({
     value: "PYTHON",
     label: "PYTHON",
   });
-  const [isSignedIn, setIsSignedIn] = useState(true);
-  const [showDialog, setShowDialog] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState<boolean>(true);
+  const [showDialog, setShowDialog] = useState<boolean>(false);
   const [user, setUser] = useState<UserDetails | null>(null);
-  const { socket, socketUser } = useUserSocket();
+  const { socket, socketUser, setSocketUser } = useUserSocket();
   const [output, setOutput] = useState<string | null>(null);
 
-  // useEffect(() => {
-  //   checkAuth();
-  // }, []);
-
   useEffect(() => {
+    if (!socketUser) {
+      setShowDialog(true);
+      setIsSignedIn(false);
+      return;
+    }
     if (!socket) {
       return;
     }
-    if (socket) {
+    if (socketUser) {
+      setIsSignedIn(true);
+      setShowDialog(false);
       setUser(socketUser);
     }
 
     const handleMessage = (event: MessageEvent) => {
-      const data = JSON.parse(event.data);
-
-      if (data.type === CONNECTED) {
+      const messageData = JSON.parse(event.data);
+      if (messageData.type === CONNECTED) {
         console.log(CONNECTED);
       }
 
-      if (data.type === UPDATE_USER) {
-        setOutput(data.payload);
+      if (messageData.type === UPDATE_USER) {
+        setOutput(messageData.payload);
       }
     };
 
@@ -55,28 +55,7 @@ export default function Home() {
     return () => {
       socket.removeEventListener("message", handleMessage);
     };
-  }, [socket, socketUser]);
-
-  async function checkAuth() {
-    const response = await fetch(`${BACKEND_URL}/api/auth/refresh`, {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    const data = await response.json();
-
-    if (!response.ok || !data.user) {
-      setIsSignedIn(false);
-      setShowDialog(true);
-    } else {
-      setUser(data.user);
-      setIsSignedIn(true);
-      setShowDialog(false);
-    }
-  }
+  }, [socket, socketUser, setIsSignedIn]);
 
   return (
     <div className="flex flex-col h-screen">
@@ -97,7 +76,8 @@ export default function Home() {
       <SignInDialog
         isOpen={showDialog}
         setIsOpen={setShowDialog}
-        setUser={setUser}
+        setUser={setSocketUser}
+        setIsSignedIn={setIsSignedIn}
       />
     </div>
   );

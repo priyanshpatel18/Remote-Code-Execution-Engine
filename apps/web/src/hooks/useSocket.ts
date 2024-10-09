@@ -1,4 +1,4 @@
-import { CONNECTED, HEARTBEAT } from "@repo/messages";
+import { HEARTBEAT } from "@repo/messages";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const WS_URL = "ws://localhost:8080";
@@ -154,5 +154,12 @@ export function useSocket({ token }: useSocketProps) {
     };
   }, [connect, handleOnline]);
 
-  return { socket: socketRef.current, isConnected, connectionType };
+  return {
+    socket: socketRef.current,
+    isConnected,
+    connectionType,
+    connect,
+    attemptReconnect,
+    handleOnline,
+  };
 }

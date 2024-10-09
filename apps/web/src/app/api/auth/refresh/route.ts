@@ -14,7 +14,7 @@ interface userJWT {
 
 export async function GET(req: NextRequest) {
   const guestCookie = cookies().get("guest")?.value;
-  
+
   try {
     if (guestCookie) {
       const decoded = verify(guestCookie, JWT_SECRET) as userJWT;
