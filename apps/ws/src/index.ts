@@ -1,9 +1,9 @@
 import { CONNECTED, HEARTBEAT } from "@repo/messages";
+import { IncomingMessage } from "http";
 import url from "url";
 import { WebSocket, WebSocketServer } from "ws";
 import socketManager from "./SocketManager";
 import { extractAuthUser } from "./utils/auth";
-import { IncomingMessage } from "http";
 
 const PORT: number = Number(process.env.PORT) || 8080;
 const wss = new WebSocketServer({ port: PORT, host: "0.0.0.0" });
