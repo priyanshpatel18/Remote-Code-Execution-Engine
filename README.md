@@ -142,7 +142,13 @@ This version is designed to handle full-stack scenarios, including integrating W
     cd packages/database
     pnpm run db
 
-    # Run the application
+    # Open Another Terminal and setup Kubernetes
+    cd packages/k8s
+    kind create cluster --name compiler-cluster --config kind.yml
+    kubectl apply -f deployment.yml
+    kubectl apply -f service.yml
+
+    # Start the server
     pnpm start
    ```
 

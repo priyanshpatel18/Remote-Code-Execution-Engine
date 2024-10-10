@@ -9,7 +9,3 @@ nodes:
     extraPortMappings:
     - containerPort: 8080
       hostPort: 30008
-  - role: worker
-    extraPortMappings:
-    - containerPort: 8080
-      hostPort: 30009
