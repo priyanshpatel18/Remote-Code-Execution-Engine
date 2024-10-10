@@ -1,14 +1,17 @@
 import { CONNECTED, HEARTBEAT } from "@repo/messages";
+import { IncomingMessage } from "http";
 import url from "url";
 import { WebSocket, WebSocketServer } from "ws";
-import { extractAuthUser } from "./utils/auth";
 import socketManager from "./SocketManager";
+import { extractAuthUser } from "./utils/auth";
 
 const PORT: number = Number(process.env.PORT) || 8080;
-const wss = new WebSocketServer({ port: 8080 });
+const wss = new WebSocketServer({ port: PORT, host: "0.0.0.0" });
 
-wss.on("connection", (ws: WebSocket, req: Request) => {
-  const queryParams = url.parse(req.url, true).query;
+wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
+  const parsedUrl = url.parse(req.url || "", true);
+  const queryParams = parsedUrl.query;
+
   const token = queryParams.token;
   const workerSecret = queryParams.workerSecret;
 
