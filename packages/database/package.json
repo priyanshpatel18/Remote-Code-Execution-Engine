@@ -1,0 +1,23 @@
+{
+  "name": "@repo/database",
+  "version": "1.0.0",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {  
+    "db": "pnpm run db:generate && pnpm run db:migrate && pnpm run db:push && prisma studio",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:push": "prisma db push --skip-generate",
+    "studio": "npx prisma studio",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.12",
+    "prisma": "5.20.0",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@prisma/client": "5.20.0"
+  }
+}

@@ -1,34 +1,19 @@
 {
-  "name": "backend",
-  "version": "1.0.0",
-  "main": "index.js",
+  "name": "v2.1",
+  "private": true,
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "concurrently \"tsc -w\" \"nodemon -q dist/index.js\"",
-    "vercel:build": "npm run build"
-  },
-  "dependencies": {
-    "@kubernetes/client-node": "^0.22.0",
-    "@prisma/client": "5.18.0",
-    "@types/uuid": "^10.0.0",
-    "cors": "^2.8.5",
-    "dockerode": "^4.0.2",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "tar-stream": "^3.1.7"
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
-    "@types/cors": "^2.8.17",
-    "@types/dockerode": "^3.3.31",
-    "@types/express": "^4.17.21",
-    "@types/node": "^22.4.0",
-    "@types/tar-stream": "^3.1.3",
-    "concurrently": "^8.2.2",
-    "eslint": "^9.9.0",
-    "nodemon": "^3.1.7",
-    "prettier": "^3.3.3",
-    "typescript": "^5.5.4"
+    "prettier": "^3.2.5",
+    "turbo": "^2.1.2",
+    "typescript": "^5.4.5"
+  },
+  "packageManager": "pnpm@8.15.6",
+  "engines": {
+    "node": ">=18"
   }
 }

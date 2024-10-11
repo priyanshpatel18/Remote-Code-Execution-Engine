@@ -119,6 +119,39 @@ This version is designed to handle full-stack scenarios, including integrating W
 - The code is placed in a queue, where multiple worker nodes (W1, W2) can process the request in parallel.
 - The WebSocket service provides real-time feedback on the execution status and final result.
 
+### Installation Guide
+
+1. Clone the repository:
+
+   ```bash
+    git clone https://github.com/priyanshpatel18/Remote-Code-Execution-Engine.git
+
+    cd Remote-Code-Execution-Engine
+    git checkout v2.1
+
+    #Install pnpm (if not already installed)
+    npm install -g pnpm@latest
+
+    #Install dependencies
+    pnpm install
+
+    # Configure Database
+    docker-compose up -d
+
+    # Run migrations
+    cd packages/database
+    pnpm run db
+
+    # Open Another Terminal and setup Kubernetes
+    cd packages/k8s
+    kind create cluster --name compiler-cluster --config kind.yml
+    kubectl apply -f deployment.yml
+    kubectl apply -f service.yml
+
+    # Start the server
+    pnpm start
+   ```
+
 ### Pros:
 - Scalable to support multiple requests simultaneously.
 - Real-time feedback via WebSockets enhances user experience.
