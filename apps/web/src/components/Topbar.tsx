@@ -1,6 +1,6 @@
 "use client";
 
-import { Language } from "../app/page";
+import { Language } from "@/app/page";
 import { motion } from "framer-motion";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 

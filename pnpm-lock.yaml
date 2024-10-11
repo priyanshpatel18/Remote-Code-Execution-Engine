@@ -47,9 +47,6 @@ importers:
       '@repo/types':
         specifier: workspace:*
         version: link:../../packages/types
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -215,9 +212,6 @@ importers:
       '@prisma/client':
         specifier: 5.20.0
         version: 5.20.0(prisma@5.20.0)
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript
     devDependencies:
       '@types/node':
         specifier: ^20.14.12
@@ -230,10 +224,6 @@ importers:
         version: 5.6.2
 
   packages/messages:
-    dependencies:
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript
     devDependencies:
       '@types/node':
         specifier: ^20.14.12
@@ -244,9 +234,6 @@ importers:
 
   packages/redis:
     dependencies:
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript
       ioredis:
         specifier: ^5.4.1
         version: 5.4.1
@@ -263,9 +250,6 @@ importers:
       '@repo/database':
         specifier: workspace:*
         version: link:../database
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript
     devDependencies:
       '@types/node':
         specifier: ^20.14.12
@@ -273,8 +257,6 @@ importers:
       typescript:
         specifier: ^5.5.4
         version: 5.6.2
-
-  packages/typescript: {}
 
 packages:
 

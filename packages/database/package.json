@@ -18,7 +18,6 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "@prisma/client": "5.20.0",
-    "@repo/typescript-config": "workspace:*"
+    "@prisma/client": "5.20.0"
   }
 }
