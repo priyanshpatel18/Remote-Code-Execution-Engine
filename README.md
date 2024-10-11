@@ -153,14 +153,8 @@ This version is designed to handle full-stack scenarios, including integrating W
    ```
 
 ### Pros:
-
 - Scalable to support multiple requests simultaneously.
 - Real-time feedback via WebSockets enhances user experience.
 
 ### Cons:
-
 - Requires more infrastructure, such as queue management and WebSocket services.
-
-```
-
-```
