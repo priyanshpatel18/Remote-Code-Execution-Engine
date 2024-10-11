@@ -34,9 +34,9 @@ async function processSubmission(data: QueuePayload, ws: WebSocket) {
       sendMessage("Failed to Execute Code", userId, ws);
       return;
     }
-    
+
     const data = await response.json();
-    
+
     // Update submission status & result
     submission = await db.submission.update({
       where: { id: submissionId },
@@ -49,7 +49,7 @@ async function processSubmission(data: QueuePayload, ws: WebSocket) {
       sendMessage("Failed to Save Result", userId, ws);
       return;
     }
-    
+
     // Send result
     sendMessage(data.result, userId, ws);
   } catch (error) {
@@ -85,7 +85,7 @@ async function executeCode(code: string, language: string) {
 
 async function startWorker() {
   const queue = process.env.REDIS_QUEUE || "redis-queue";
-  
+
   const ws = connectWebSocket();
   console.log("STARTING WORKER");
 
