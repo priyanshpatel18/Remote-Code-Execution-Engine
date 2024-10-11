@@ -7,8 +7,8 @@ import {
   DialogHeader,
   DialogOverlay,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { User } from "@/hooks/useUser";
+} from "../components/ui/dialog";
+import { User } from "../hooks/useUser";
 import { Provider } from "@repo/database";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
