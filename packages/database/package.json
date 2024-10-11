@@ -4,7 +4,7 @@
   "exports": {
     ".": "./src/index.ts"
   },
-  "scripts": {  
+  "scripts": {
     "db": "pnpm run db:generate && pnpm run db:migrate && pnpm run db:push && prisma studio",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",

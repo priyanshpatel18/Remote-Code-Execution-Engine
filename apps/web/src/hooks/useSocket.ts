@@ -1,9 +1,9 @@
 import { HEARTBEAT } from "@repo/messages";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const WS_URL = "ws://localhost:8080";
-const HEARTBEAT_INTERVAL = 5000; // 5 seconds
-const RECONNECT_INTERVAL = 5000; // 5 seconds
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "";
+const HEARTBEAT_INTERVAL = 5000;
+const RECONNECT_INTERVAL = 5000;
 const MAX_RECONNECT_ATTEMPTS = 10;
 
 interface useSocketProps {
