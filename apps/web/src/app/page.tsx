@@ -1,9 +1,9 @@
 "use client";
 
-import EditorOutput from "../components/EditorAndOutput";
-import SignInDialog from "../components/SignInDialog";
-import Topbar from "../components/Topbar";
-import useUserSocket from "../hooks/useUserSocket";
+import EditorOutput from "@/components/EditorAndOutput";
+import SignInDialog from "@/components/SignInDialog";
+import Topbar from "@/components/Topbar";
+import useUserSocket from "@/hooks/useUserSocket";
 import { CONNECTED, UPDATE_USER } from "@repo/messages";
 import { UserDetails } from "@repo/types";
 import { useEffect, useState } from "react";
