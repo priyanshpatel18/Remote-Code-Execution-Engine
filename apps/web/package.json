@@ -4,7 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "cd ../../packages/database && pnpm run db:generate && cd ../../apps/web && next build",
+    "build": "pnpm run build:packages next build",
+    "build:packages": "cd ../../packages p",
+    "build:database": "cd ./database && pnpm run db:generate cd ..",
+    "build:types": "cd ./types && pnpm run build && cd ..",
+    "build:messages": "cd ./messages && pnpm run build && cd ..",
+    "build:redis": "cd ./redis && pnpm run build && cd ..",
     "start": "next start",
     "lint": "next lint"
   },

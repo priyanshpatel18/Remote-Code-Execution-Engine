@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const transaction = await db.$transaction(async (prisma) => {
+    const transaction = await db.$transaction(async () => {
       // Save code to database
       const submission = await db.submission.create({
         data: {
