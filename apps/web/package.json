@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "pnpm run build:packages next build",
+    "build": "next build",
     "build:packages": "cd ../../packages p",
     "build:database": "cd ./database && pnpm run db:generate cd ..",
     "build:types": "cd ./types && pnpm run build && cd ..",
