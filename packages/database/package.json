@@ -6,9 +6,9 @@
   },
   "scripts": {
     "db": "pnpm run db:generate && pnpm run db:migrate && pnpm run db:push",
-    "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate deploy",
-    "db:push": "prisma db push --skip-generate",
+    "db:generate": "npx prisma generate",
+    "db:migrate": "npx prisma migrate deploy",
+    "db:push": "npx prisma db push --skip-generate",
     "studio": "npx prisma studio",
     "build": "tsc"
   },
