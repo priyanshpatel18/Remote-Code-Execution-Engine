@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prisma:generate": "cd ../../packages/database && pnpm run db:generate && cd ../../apps/web",
-    "build": "pnpm prisma:generate && pnpm build",
+    "build": "cd ../../packages/database && pnpx prisma generate && cd ../../apps/web && next build",
     "start": "next start",
     "lint": "next lint"
   },
