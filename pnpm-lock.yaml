@@ -112,7 +112,7 @@ importers:
         specifier: ^3.4.1
         version: 3.4.13(ts-node@10.9.2(@types/node@20.16.9)(typescript@5.4.5))
       typescript:
-        specifier: ^5
+        specifier: ^5.4.5
         version: 5.4.5
 
   apps/worker:
