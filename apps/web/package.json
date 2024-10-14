@@ -4,12 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "build:packages": "cd ../../packages p",
-    "build:database": "cd ./database && pnpm run db:generate cd ..",
-    "build:types": "cd ./types && pnpm run build && cd ..",
-    "build:messages": "cd ./messages && pnpm run build && cd ..",
-    "build:redis": "cd ./redis && pnpm run build && cd ..",
+    "prisma:generate": "cd ../../packages/database && pnpm run db:generate && cd ../../apps/web",
+    "build": "pnpm prisma:generate && pnpm build",
     "start": "next start",
     "lint": "next lint"
   },
