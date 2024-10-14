@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "cd ../../packages/database && pnpx prisma generate && cd ../../apps/web && next build",
+    "build": "cd ../../packages/database && pnpm run db && cd ../../apps/web && next build",
     "start": "next start",
     "lint": "next lint"
   },

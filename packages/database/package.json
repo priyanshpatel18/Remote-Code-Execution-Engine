@@ -5,7 +5,7 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "db": "pnpm run db:generate && pnpm run db:migrate && pnpm run db:push && prisma studio",
+    "db": "pnpm run db:generate && pnpm run db:migrate && pnpm run db:push",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push --skip-generate",
