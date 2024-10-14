@@ -89,6 +89,15 @@ async function startWorker() {
   const ws = connectWebSocket();
   console.log("STARTING WORKER");
 
+  const shutdown = async () => {
+    console.log("Shutting down worker...");
+    // Perform any cleanup operations here
+    process.exit(0);
+  };
+
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
+
   while (true) {
     try {
       // Blocking pop from Redis queue
