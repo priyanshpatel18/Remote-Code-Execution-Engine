@@ -86,8 +86,6 @@ class SocketManager {
       const message = JSON.parse(data.toString());
 
       if (message.type === UPDATE_USER) {
-        console.log("UPDATE_USER", message.payload);
-        
         this.sendMessage(message.payload.result, message.payload.userId);
       }
     });

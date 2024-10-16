@@ -14,8 +14,6 @@ wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
 
   const token = queryParams.token;
   const workerSecret = queryParams.workerSecret;
-
-  console.log(token);
   
   if (workerSecret && typeof workerSecret === "string") {
     if (socketManager.authenticate(workerSecret as string)) {
