@@ -6,7 +6,7 @@ import socketManager from "./SocketManager";
 import { extractAuthUser } from "./utils/auth";
 
 const PORT: number = Number(process.env.PORT) || 8080;
-const wss = new WebSocketServer({ port: PORT, host: "0.0.0.0" });
+const wss = new WebSocketServer({ port: PORT });
 
 wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
   const parsedUrl = url.parse(req.url || "", true);
@@ -15,6 +15,8 @@ wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
   const token = queryParams.token;
   const workerSecret = queryParams.workerSecret;
 
+  console.log(token);
+  
   if (workerSecret && typeof workerSecret === "string") {
     if (socketManager.authenticate(workerSecret as string)) {
       const worker = socketManager.addWorker(ws);
