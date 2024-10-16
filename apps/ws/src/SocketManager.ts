@@ -1,4 +1,4 @@
-import { UPDATE_USER } from "@repo/messages";
+import { HEARTBEAT, UPDATE_USER } from "@repo/messages";
 import { randomUUID } from "crypto";
 import "dotenv/config";
 import { WebSocket } from "ws";
@@ -58,6 +58,10 @@ class SocketManager {
   private userHandler(user: User) {
     user.socket.on("message", (data: string) => {
       const message = JSON.parse(data.toString());
+
+      if (message.type === HEARTBEAT) {
+        user.socket.send(JSON.stringify({ type: HEARTBEAT }));
+      }
     });
   }
 
@@ -87,6 +91,10 @@ class SocketManager {
 
       if (message.type === UPDATE_USER) {
         this.sendMessage(message.payload.result, message.payload.userId);
+      }
+
+      if (message.type === HEARTBEAT) {
+        worker.socket.send(JSON.stringify({ type: HEARTBEAT }));
       }
     });
   }

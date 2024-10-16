@@ -14,7 +14,7 @@ wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
 
   const token = queryParams.token;
   const workerSecret = queryParams.workerSecret;
-  
+
   if (workerSecret && typeof workerSecret === "string") {
     if (socketManager.authenticate(workerSecret as string)) {
       const worker = socketManager.addWorker(ws);
@@ -31,15 +31,6 @@ wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
   const user = extractAuthUser(token, ws);
   socketManager.addUser(user);
   ws.send(JSON.stringify({ type: CONNECTED, payload: user.userId }));
-
-  // Heartbeat Algorithm
-  ws.on("message", (data: string) => {
-    const message = JSON.parse(data.toString());
-
-    if (message.type === HEARTBEAT) {
-      ws.send(JSON.stringify({ type: HEARTBEAT }));
-    }
-  });
 
   ws.on("close", () => {
     socketManager.removeUser(user);
